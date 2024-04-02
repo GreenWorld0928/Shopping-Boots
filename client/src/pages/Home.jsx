@@ -46,6 +46,7 @@ function Home() {
     const [userId, setUserId] = useState("");
     const [open, setOpen] = useState(false);
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
 
     const getProducts = () => {
         const tempProducts = []
@@ -57,7 +58,12 @@ function Home() {
             })
             setProducts(tempProducts)
         }
-        console.log(products)
+        const tempCategories = []
+        for (let i = 0; i < 5; i++) {
+            tempCategories.push("Category " + (i + 1))
+        }
+        setCategories(tempCategories)
+        console.log(tempCategories)
     }
     useEffect(() => {
         getProducts();
@@ -123,11 +129,18 @@ function Home() {
                     <div className="border" style={{ position: 'relative', overflowX: 'hidden', overflowY: 'scroll', height: '700px' }}>
                         <h3 className="p-4">FASTLANE 2.0 Product</h3>
                         <p className="ps-4">Fast Lane orders are produced in just 1-Week, almost 4 times faster than standard MTO orders.However, Fast Lane customizing options are slightly limited, especially regarding materials.</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
-                            {
-                                products.map((item, idx) => <Product key={idx} name={item.name} price={item.price} />)
-                            }
+
+                        {categories.map((type, index) => <div key={index} >
+                            <h4 className="px-2 pt-2">{type}</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+
+                                {
+                                    products.map((item, idx) => <Product key={idx} name={item.name} price={item.price} />)
+                                }
+                            </div>
                         </div>
+                        )}
+
                     </div>
                 </Col>
             </Row>
