@@ -38,12 +38,26 @@ function Home() {
     const classes = useStyles();
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
-    const scrollToSpecialComponent = (id) => {
+    const [activeCategory, setActiveCategory] = useState(1);
+
+    const innerRef = useRef(null);
+
+    useEffect(() => {
+        getProducts();
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
+    const scrollToSpecialComponent = (id, index) => {
         const element = document.getElementById(id);
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
         }
+        setActiveCategory(index+1);
     };
+
     const getProducts = () => {
         const tempProducts = []
         for (let i = 0; i < 20; i++) {
@@ -52,18 +66,32 @@ function Home() {
                 price: Math.floor(Math.random() * 10000) / 10,
                 url: ""
             })
-            setProducts(tempProducts)
         }
+        setProducts(tempProducts);
+
         const tempCategories = []
         for (let i = 0; i < 5; i++) {
             tempCategories.push("Category " + (i + 1))
         }
-        setCategories(tempCategories)
-        console.log(tempCategories)
+        setCategories(tempCategories);
     }
-    useEffect(() => {
-        getProducts();
-    }, []);
+
+    const handleScroll = (e) => {
+
+        console.log("scrolling...")
+        const view = document.getElementById(`viewPort`)
+        const categoryRefs = categories.map((_, index) => document.getElementById(`category-${index + 1}`));
+        if(!categoryRefs||categoryRefs.length==0) return
+        console.log("categoryRefs...", categoryRefs[0].offsetTop)
+        console.log("scrollPosition...",view.offsetTop+view.scrollTop)
+        for (let i = categoryRefs.length - 1; i >= 0; i--) {
+            const categoryRef = categoryRefs[i];
+            if (categoryRef.offsetTop <= view.offsetTop+view.scrollTop) {
+                setActiveCategory(i + 1);
+                break;
+            }
+        }
+    };
 
     return (
         <React.Fragment>
@@ -84,16 +112,28 @@ function Home() {
             <Row className="m-0 p-0">
                 <Col lg={2} className="border p-0">
                     <ListGroup className="w-100" variant="flush" defaultActiveKey="#link1">
-                        {categories.map((type, index) => <ListGroup.Item key={index} onClick={() => scrollToSpecialComponent(type)} action href={`#link${index+1}`}>
-                            {type}
-                        </ListGroup.Item>)}
+                        {categories.map((type, index) => (
+                            <ListGroup.Item
+                                key={index}
+                                onClick={() => scrollToSpecialComponent(`category-${index + 1}`, index)}
+                                action
+                                active={activeCategory === index + 1}
+                                href={`#link${index + 1}`}
+                            >
+                                {type}
+                            </ListGroup.Item>
+                        ))}
                     </ListGroup>
                 </Col>
                 <Col lg="10" className="">
-                    <div className="border" style={{ position: 'relative', overflowX: 'hidden', overflowY: 'scroll', height: '700px' }}>
+                    <div id="viewPort" onScroll={(e)=>handleScroll(e)} className="border" style={{ position: 'relative', overflowX: 'hidden', overflowY: 'scroll', height: '700px' }}>
                         <h3 className="p-4">FASTLANE 2.0 Product</h3>
-                        <p className="ps-4">Fast Lane orders are produced in just 1-Week, almost 4 times faster than standard MTO orders.However, Fast Lane customizing options are slightly limited, especially regarding materials.</p>
-                        {categories.map((type, index) => <div key={index} id={type}><Category type={type} products={products} /></div>)}
+                        <p className="ps-4">Fast Lane orders are produced in just 1-Week, almost 4 times faster than standard MTO orders. However, Fast Lane customizing options are slightly limited, especially regarding materials.</p>
+                        {categories.map((type, index) => (
+                            <div key={index} id={`category-${index + 1}`}>
+                                <Category type={type} products={products} />
+                            </div>
+                        ))}
                     </div>
                 </Col>
             </Row>
