@@ -1,167 +1,138 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  makeStyles,
-  useTheme,
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  TableContainer,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  useMediaQuery,
+    makeStyles,
+    useTheme,
+    AppBar,
+    Toolbar,
+    Typography,
+    useMediaQuery,
 } from "@material-ui/core";
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from "@material-ui/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { getUsers, deleteUserById } from "./../actions/user";
+import Product from "../components/Product";
+import {
+    Button, Row, Col, Nav, ListGroup
+} from "react-bootstrap";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-    textAlign: "center",
-  },
-  button: {
-    margin: theme.spacing(1),
-  },
-  table: {
-    flex: 1,
-    alignContent: "center",
-    justifyContent: "center",
-  },
+    root: {
+        flexGrow: 1,
+    },
+    menuButton: {
+        marginRight: theme.spacing(2),
+    },
+    title: {
+        flexGrow: 1,
+        textAlign: "center",
+    },
+    button: {
+        margin: theme.spacing(1),
+    },
+    table: {
+        flex: 1,
+        alignContent: "center",
+        justifyContent: "center",
+    },
 }));
 
 function Home() {
-  const classes = useStyles();
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const dispatch = useDispatch();
-  const loading = useSelector((state) => state.users?.loading);
-  const users = useSelector((state) => state.users?.items);
-  const [userId, setUserId] = useState("");
-  const [open, setOpen] = useState(false);
+    const classes = useStyles();
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+    const dispatch = useDispatch();
+    const loading = useSelector((state) => state.users?.loading);
+    const users = useSelector((state) => state.users?.items);
+    const [userId, setUserId] = useState("");
+    const [open, setOpen] = useState(false);
+    const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    dispatch(getUsers());
-  }, []);
-
-  useEffect(() => {
-    console.log('loading', loading)
-    if (!loading) {
-      setOpen(loading);
+    const getProducts = () => {
+        const tempProducts = []
+        for (let i = 0; i < 20; i++) {
+            tempProducts.push({
+                name: "Shoe No" + (i + 1),
+                price: Math.floor(Math.random() * 10000) / 10,
+                url: ""
+            })
+            setProducts(tempProducts)
+        }
+        console.log(products)
     }
-  }, [loading]);
+    useEffect(() => {
+        getProducts();
+        dispatch(getUsers());
+    }, []);
 
-  const openDialog = (_id) => {
-    setOpen(true);
-    setUserId(_id);
-  };
+    useEffect(() => {
+        console.log('loading', loading)
+        if (!loading) {
+            setOpen(loading);
+        }
+    }, [loading]);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const openDialog = (_id) => {
+        setOpen(true);
+        setUserId(_id);
+    };
 
-  const confirmDelete = () => {
-    dispatch(deleteUserById(userId));
-  };
+    const handleClose = () => {
+        setOpen(false);
+    };
 
-  return (
-    <React.Fragment>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            ReactJs CRUD App With React Redux Thunk
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Link to="/create">
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          startIcon={<AddIcon />}
-        >
-          Create User
-        </Button>
-      </Link>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>S.No</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>CreatedAt</TableCell>
-              <TableCell>UpdatedAt</TableCell>
-              <TableCell>Update</TableCell>
-              <TableCell>Delete</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell component="th" scope="row">
-                  {index + 1}
-                </TableCell>
-                <TableCell>{row.firstName + " " + row.lastName}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>{row.createdAt}</TableCell>
-                <TableCell>{row.updatedAt}</TableCell>
-                <TableCell>
-                  <Link to={`/update/${row._id}`}>
-                    <EditIcon>edit</EditIcon>
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <DeleteIcon onClick={() => openDialog(row._id)}>
-                    delete
-                  </DeleteIcon>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {open && (
-        <Dialog
-          fullScreen={fullScreen}
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="Delete User"
-        >
-          <DialogContent style={{ width: 300 }}>
-            <DialogContentText>Are you sure?</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button autoFocus onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={confirmDelete} color="primary" autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
-    </React.Fragment>
-  );
+    const confirmDelete = () => {
+        dispatch(deleteUserById(userId));
+    };
+    return (
+        <React.Fragment>
+            <AppBar position="static">
+                <Toolbar>
+                    <Typography variant="h6" className={classes.title}>
+                        You can find best boots here
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+            <Row className="m-0 p-0">
+                <Col md={2}>
+                </Col>
+                <Col className="py-4" md={10}>
+                    <h1>Choose Your Style</h1>
+                </Col>
+            </Row>
+            <Row className="m-0 p-0">
+                <Col md={2} className="border p-0">
+                    <ListGroup variant="flush" defaultActiveKey="#link1">
+                        <ListGroup.Item action href="#link1">
+                            Navigation Item1
+                        </ListGroup.Item>
+                        <ListGroup.Item action href="#link2">
+                            Navigation Item2
+                        </ListGroup.Item>
+                        <ListGroup.Item action href="#link3">
+                            Navigation Item3
+                        </ListGroup.Item>
+                        <ListGroup.Item action href="#link4">
+                            Navigation Item4
+                        </ListGroup.Item>
+                        <ListGroup.Item action href="#link5">
+                            Navigation Item5
+                        </ListGroup.Item>
+                    </ListGroup>
+                </Col>
+                <Col className="">
+                    <div className="border" style={{ position: 'relative', overflowX: 'hidden', overflowY: 'scroll', height: '700px' }}>
+                        <h3 className="p-4">FASTLANE 2.0 Product</h3>
+                        <p className="ps-4">Fast Lane orders are produced in just 1-Week, almost 4 times faster than standard MTO orders.However, Fast Lane customizing options are slightly limited, especially regarding materials.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+                            {
+                                products.map((item, idx) => <Product key={idx} name={item.name} price={item.price} />)
+                            }
+                        </div>
+                    </div>
+                </Col>
+            </Row>
+        </React.Fragment>
+    );
 }
 
 export default Home;
